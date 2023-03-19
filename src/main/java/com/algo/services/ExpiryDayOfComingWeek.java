@@ -12,7 +12,7 @@ public class ExpiryDayOfComingWeek {
 		Calendar date = Calendar.getInstance();
 		int diff = expiryDate - date.get(Calendar.DAY_OF_WEEK);
 
-		if (diff <= 0) {
+		if (diff < 0) {
 			diff += 7;
 		}
 		date.add(Calendar.DAY_OF_MONTH, diff);

@@ -53,76 +53,15 @@ public class TickerService {
 		kiteTicker.setOnTickerArrivalListener(new OnTicks() {
 			@Override
 			public void onTicks(ArrayList<Tick> ticks) {
-				log.info("In onTicks Start: Tick Size->"+ticks.size());
+				log.info("In onTicks Start: Tick Size->" + ticks.size());
 				if (ticks.size() == tokens.size()) {
 					if (ticks.get(0) != null) {
-						System.out.println(ticks.get(0).getInstrumentToken() + "->" + ticks.get(0).getLastTradedPrice());
-						double sLTriggeredPrice = tokenTriggeredPriceSymbolMap.get(ticks.get(0).getInstrumentToken());
-						double lastTradedPrice = ticks.get(0).getLastTradedPrice();
-//						System.out.println(sLTriggeredPrice + "==" + lastTradedPrice);
-						if (lastTradedPrice >= (sLTriggeredPrice - 2.0)) {
-							String orderId = tokenSLOrderIdSymbolMap.get(ticks.get(0).getInstrumentToken());
-//							System.out.println("Tick (0) Order Id-" + orderId);
-							Trade trade = getTradesByOrderId(orderId);
-							if (trade != null) {
-
-//								System.out.println("Tick (0) Order Id From Trade Obj-" + trade.orderId);
-								if (trade.transactionType.equals(Constants.TRANSACTION_TYPE_BUY)) {
-//									System.out.println("Tick (0) BUY executed" + trade.transactionType);
-									try {
-										modifyExistedSLOrder(ticks.get(1).getLastTradedPrice(),
-												tokenSLOrderIdSymbolMap.get(ticks.get(1).getInstrumentToken()),
-												tokenMarketOrderIdSymbolMap.get(ticks.get(1).getInstrumentToken()),
-												tokenTradingSymbolMap.get(ticks.get(1).getInstrumentToken()));
-									} catch (KiteException | Exception e) {
-										log.info("Exception in modifyExistedSLOrder",e);
-										e.printStackTrace();
-									}
-
-									try {
-										Thread.sleep(3000);
-									} catch (InterruptedException e) {
-										log.info("Exception while Thread Sleep",e);
-										e.printStackTrace();
-									}
-									kiteTicker.disconnect();
-								}
-							}
-						}
+						tickerExecuter(ticks.get(0), ticks.get(1), kiteTicker, tokenTradingSymbolMap,
+								tokenSLOrderIdSymbolMap, tokenTriggeredPriceSymbolMap, tokenMarketOrderIdSymbolMap);
 					}
 					if (ticks.get(1) != null) {
-						System.out.println(ticks.get(1).getInstrumentToken() + "->" + ticks.get(1).getLastTradedPrice());
-						double sLTriggeredPrice = tokenTriggeredPriceSymbolMap.get(ticks.get(1).getInstrumentToken());
-						double lastTradedPrice = ticks.get(1).getLastTradedPrice();
-//						System.out.println(sLTriggeredPrice + "==" + lastTradedPrice);
-						if (lastTradedPrice >= (sLTriggeredPrice - 2.0)) {
-							String orderId = tokenSLOrderIdSymbolMap.get(ticks.get(1).getInstrumentToken());
-//							System.out.println("Tick (1) Order Id-" + orderId);
-							Trade trade = getTradesByOrderId(orderId);
-							if (trade != null) {
-//								System.out.println("Tick (1) Order Id From Trade Obj-" + trade.orderId);
-								if (trade.transactionType.equals(Constants.TRANSACTION_TYPE_BUY)) {
-//									System.out.println("Tick (1) BUY executed" + trade.transactionType);
-									try {
-										modifyExistedSLOrder(ticks.get(0).getLastTradedPrice(),
-												tokenSLOrderIdSymbolMap.get(ticks.get(0).getInstrumentToken()),
-												tokenMarketOrderIdSymbolMap.get(ticks.get(0).getInstrumentToken()),
-												tokenTradingSymbolMap.get(ticks.get(0).getInstrumentToken()));
-									} catch (KiteException | Exception e) {
-										log.info("Exception in modifyExistedSLOrder",e);
-										e.printStackTrace();
-									}
-
-									try {
-										Thread.sleep(3000);
-									} catch (InterruptedException e) {
-										log.info("Exception while Thread Sleep",e);
-										e.printStackTrace();
-									}
-									kiteTicker.disconnect();
-								}
-							}
-						}
+						tickerExecuter(ticks.get(1), ticks.get(0), kiteTicker, tokenTradingSymbolMap,
+								tokenSLOrderIdSymbolMap, tokenTriggeredPriceSymbolMap, tokenMarketOrderIdSymbolMap);
 					}
 				} else {
 //					kiteTicker.disconnect();
@@ -142,6 +81,40 @@ public class TickerService {
 		log.info("In TickerService.createKiteTicker End");
 	}
 
+	private void tickerExecuter(Tick currentTick, Tick nextTick, KiteTicker kiteTicker,
+			Map<Long, String> tokenTradingSymbolMap, Map<Long, String> tokenSLOrderIdSymbolMap,
+			Map<Long, Double> tokenTriggeredPriceSymbolMap, Map<Long, String> tokenMarketOrderIdSymbolMap) {
+		System.out.println(currentTick.getInstrumentToken() + "->" + currentTick.getLastTradedPrice());
+		double sLTriggeredPrice = tokenTriggeredPriceSymbolMap.get(currentTick.getInstrumentToken());
+		double lastTradedPrice = currentTick.getLastTradedPrice();
+//		System.out.println(sLTriggeredPrice + "==" + lastTradedPrice);
+		if (lastTradedPrice >= (sLTriggeredPrice - 2.0)) {
+			String orderId = tokenSLOrderIdSymbolMap.get(currentTick.getInstrumentToken());
+			Trade trade = getTradesByOrderId(orderId);
+			if (trade != null) {
+				if (trade.transactionType.equals(Constants.TRANSACTION_TYPE_BUY)) {
+					try {
+						modifyExistedSLOrder(nextTick.getLastTradedPrice(),
+								tokenSLOrderIdSymbolMap.get(nextTick.getInstrumentToken()),
+								tokenMarketOrderIdSymbolMap.get(nextTick.getInstrumentToken()),
+								tokenTradingSymbolMap.get(nextTick.getInstrumentToken()));
+					} catch (KiteException | Exception e) {
+						log.info("Exception in modifyExistedSLOrder", e);
+						e.printStackTrace();
+					}
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						log.info("Exception while Thread Sleep", e);
+						e.printStackTrace();
+					}
+					kiteTicker.disconnect();
+				}
+			}
+		}
+	}
+
 	private void modifyExistedSLOrder(double lastTradedPrice, String sLOrderId, String marketOrderId,
 			String tradingSymbol) throws JSONException, IOException, KiteException, Exception {
 		log.info("In modifyExistedSLOrder Start");
@@ -156,13 +129,13 @@ public class TickerService {
 				Constants.TRANSACTION_TYPE_BUY, Constants.VARIETY_REGULAR);
 		log.info("In modifyExistedSLOrder End");
 	}
-	
+
 	public Order getOrderHistory(String orderId) {
 		List<Order> orderData = null;
 		try {
 			orderData = kiteConnect.getOrderHistory(orderId);
 		} catch (KiteException | Exception e) {
-			log.info("Exception in getOrderHistory",e);
+			log.info("Exception in getOrderHistory", e);
 			e.printStackTrace();
 		}
 		return orderData != null ? orderData.get(0) : null;
@@ -173,7 +146,7 @@ public class TickerService {
 		try {
 			tradeList = kiteConnect.getOrderTrades(orderId);
 		} catch (KiteException | Exception e) {
-			log.info("Exception in getOrderTrades",e);
+			log.info("Exception in getOrderTrades", e);
 			e.printStackTrace();
 		}
 		return tradeList != null ? tradeList.get(0) : null;
@@ -187,9 +160,8 @@ public class TickerService {
 				return tradeList.get(0);
 			}
 		} catch (JSONException | IOException | KiteException e) {
-			log.info("Exception in getTradesByOrderId",e);
+			log.info("Exception in getTradesByOrderId", e);
 		}
-
 		return null;
 	}
 

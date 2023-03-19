@@ -13,7 +13,7 @@ public class Constants {
 	public static final String secret_Key = "kkdf5lmbhr109xxew2wfwz1ywqncxjn2";
 
 	// REQUEST_KEY
-	public static final String request_Key = "miu7saL27ROfzHRMh6cV6RpWj1oXBif3";
+	public static final String request_Key = "f6nfkbEFZC1yy5qzaW1zl92VdzMZxr71";
 	
 	public static final String KITE_EXISTED_API_NAME = "kiteExistedApi";
 	
