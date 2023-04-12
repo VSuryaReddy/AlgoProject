@@ -44,6 +44,27 @@ public class OptionStrikesIntrument {
 		return nseInstruments;
 	}
 
+	public List<Instrument> getInstrumentsByUnderLyingAssert(String underLyingAssert)
+			throws JSONException, IOException, KiteException {
+		log.info("In getAllInstruments Start");
+		List<Instrument> nseInstruments = kiteConnect.getInstruments("NFO");
+		List<Instrument> instrumentsList = new ArrayList<>();
+		for (Instrument instrument : nseInstruments) {
+			if (instrument.name.equalsIgnoreCase(underLyingAssert)) {
+//				System.out.println("Name :-" + instrument.name + " ; Symbol :-" + instrument.tradingsymbol
+//						+ " ; Token :-" + instrument.instrument_token + " ; Expiry :-" + instrument.expiry
+//						+ " ; Last Trade Price :-" + instrument.last_price + " ; Strike-" + instrument.strike
+//						+ " ; Exchange Token-" + instrument.exchange_token + " ; Tick Size-" + instrument.tick_size
+//						+ " ; Instrument_Type-" + instrument.instrument_type + " ; Segment-" + instrument.segment
+//						+ " ; Exchange-" + instrument.exchange + " ; Lot_Size-" + instrument.lot_size);
+				instrumentsList.add(instrument);
+			}
+		}
+
+		log.info("In getAllInstruments End");
+		return instrumentsList;
+	}
+
 	public List<Instrument> showAllInstrumentsOfGivenUnderLyingAssert(String underLyingAsset)
 			throws JSONException, IOException, KiteException {
 		List<Instrument> nseInstruments = kiteConnect.getInstruments("NFO");
@@ -142,34 +163,48 @@ public class OptionStrikesIntrument {
 		return tokensList;
 	}
 
+	public String getWeeklyOptionContractsSymbolListAtGivenStrikesByInstType(String underLyingAsset,
+			int weeklyExpiryDay, String strikePrice, String type) throws JSONException, IOException, KiteException {
+		List<Instrument> nseInstruments = kiteConnect.getInstruments("NFO");
+		Date nextExpDate = expiryDayOfComingWeek.getExpiryDayOfComingWeek(weeklyExpiryDay);
+		for (Instrument instrument : nseInstruments) {
+			if (instrument.name.equals(underLyingAsset) && instrument.strike.equals(strikePrice)
+					&& instrument.expiry.getTime() / 1000 == nextExpDate.getTime() / 1000
+					&& instrument.instrument_type.equals(type)) {
+				return instrument.tradingsymbol;
+			}
+		}
+		return "";
+	}
+
 	public double getLTP(String token) throws KiteException, IOException {
 		String[] instruments = { token };
-		System.out.println("Token->"+token);
+		System.out.println("Token->" + token);
 		return kiteConnect.getLTP(instruments).get(token).lastPrice;
 	}
 
 	public String getOptionDataForGivenInput(String strikePrice, String underLyingAssert, int expiryDay)
 			throws JSONException, IOException, KiteException {
 		log.info("In OptionStrikesIntrument.getOptionDataForGivenInput Start");
-		List<Instrument> instrumentList = getWeeklyOptionContractsIntrumentListAtGivenStrikes(underLyingAssert,expiryDay, strikePrice);
+		List<Instrument> instrumentList = getWeeklyOptionContractsIntrumentListAtGivenStrikes(underLyingAssert,
+				expiryDay, strikePrice);
 		List<OptionDetailsOfStrikePrice> optionDetailsOfStrikePriceList = new ArrayList<>();
-		double total=0.0;
-		double diff=0.0;
-		if (!UtilityClass.isInstrumentListEmpty(instrumentList)) {
+		double total = 0.0;
+		double diff = 0.0;
+		if (!UtilityClass.isListEmpty(instrumentList)) {
 			for (Instrument instrument : instrumentList) {
-				double ltp =	getLTP(String.valueOf(instrument.instrument_token));
-				optionDetailsOfStrikePriceList
-						.add(OptionDetailsOfStrikePrice.builder().underLyingAssert(instrument.name)
-								.strikePrice(instrument.strike).instrumentType(instrument.instrument_type)
-								.symbol(instrument.tradingsymbol).token(instrument.instrument_token)
-								.lastTradedPrice(ltp).build());
-				total =total+ltp;
-				diff =Math.abs(diff-ltp);
+				double ltp = getLTP(String.valueOf(instrument.instrument_token));
+				optionDetailsOfStrikePriceList.add(OptionDetailsOfStrikePrice.builder()
+						.underLyingAssert(instrument.name).strikePrice(instrument.strike)
+						.instrumentType(instrument.instrument_type).symbol(instrument.tradingsymbol)
+						.token(instrument.instrument_token).lastTradedPrice(ltp).build());
+				total = total + ltp;
+				diff = Math.abs(diff - ltp);
 			}
-		}else {
+		} else {
 			return "No Data Available for given Input";
 		}
 		log.info("In OptionStrikesIntrument.getOptionDataForGivenInput End");
-		return optionDetailsOfStrikePriceList.toString()+", Difference==>"+diff +", Total==>"+total;
+		return optionDetailsOfStrikePriceList.toString() + ", Difference==>" + diff + ", Total==>" + total;
 	}
 }

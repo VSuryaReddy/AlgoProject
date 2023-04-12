@@ -21,23 +21,13 @@ public class UtilityClass {
 		}
 		return true;
 	}
-
-	public static boolean isTradeListEmpty(List<Trade> list) {
+	public static <T> boolean isListEmpty(List<T> list) {
 		if (list != null && list.size() != 0 && !list.isEmpty()) {
 			return false;
 		}
 		return true;
-
 	}
-
-	public static boolean isOrderListEmpty(List<Order> list) {
-		if (list != null && list.size() != 0 && !list.isEmpty()) {
-			return false;
-		}
-		return true;
-
-	}
-
+	
 	public static double getPriceOfgivenPercentage(double price, int percent) {
 		double percentage = 0.01 * percent;
 		int SLPrice = (int) (price * percentage);
@@ -50,12 +40,9 @@ public class UtilityClass {
 		return triggeredPrice + targetPrice;
 	}
 
-	public static boolean isInstrumentListEmpty(List<Instrument> instrumentList) {
-		if (instrumentList != null && instrumentList.size() != 0 && !instrumentList.isEmpty()) {
-			return false;
-		}
-		return true;
-
+	public static String getStrikePrice(double lastTradedPrice) {
+		String strikePrice = String.valueOf(50 * (Math.round(lastTradedPrice / 50)));
+		return strikePrice;
 	}
 
 }

@@ -85,16 +85,13 @@ public class OrdersBucket {
 		log.info("In OrdersBucket.setStopLossLimitForExistedOptionOrder Start");
 		String triggeredPrice = getTriggeredPriceOfOrder(order);
 		if (!UtilityClass.isEmptyString(triggeredPrice)) {
-
 			Map orderandSLPriceMap = new HashMap();
-
 			orderandSLPriceMap.put(Constants.MARKET_ORDER_ID, order.orderId);
-			double SLPricePrice = UtilityClass.getPriceOfgivenPercentage(Double.parseDouble(triggeredPrice),
-					Constants.STOP_LOSS_PERCENT);
+			orderandSLPriceMap.put(Constants.EXECUTE_PRICE, Double.parseDouble(triggeredPrice));
+			double SLPricePrice = UtilityClass.getPriceOfgivenPercentage(Double.parseDouble(triggeredPrice),Constants.STOP_LOSS_PERCENT);
 			double targetPrice = UtilityClass.getTargetPrice(triggeredPrice, SLPricePrice);
 			orderandSLPriceMap.put(Constants.TARGET_PRICE, targetPrice);
-			Order orderValue = placeOrder(quantity, orderType, tradingSymbol, product, targetPrice, targetPrice,
-					exchange, transactionType, variety);
+			Order orderValue = placeOrder(quantity, orderType, tradingSymbol, product, targetPrice, targetPrice,exchange, transactionType, variety);
 			System.out.println("SL Order ID" + orderValue.orderId);
 			orderandSLPriceMap.put(Constants.SL_ORDER_ID, orderValue.orderId);
 			return orderandSLPriceMap;
@@ -105,7 +102,7 @@ public class OrdersBucket {
 
 	public String getTriggeredPriceOfOrder(Order order) throws KiteException, IOException {
 		List<Trade> trades = kiteConnect.getOrderTrades(order.orderId);
-		if (!UtilityClass.isTradeListEmpty(trades)) {
+		if (!UtilityClass.isListEmpty(trades)) {
 			return trades.get(0).averagePrice;
 		}
 		return null;

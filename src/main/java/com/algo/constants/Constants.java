@@ -13,7 +13,7 @@ public class Constants {
 	public static final String secret_Key = "kkdf5lmbhr109xxew2wfwz1ywqncxjn2";
 
 	// REQUEST_KEY
-	public static final String request_Key = "f6nfkbEFZC1yy5qzaW1zl92VdzMZxr71";
+	public static final String request_Key = "KClrxWR8M8BsK9InCpb4qePmCjG9UEqx";
 	
 	public static final String KITE_EXISTED_API_NAME = "kiteExistedApi";
 	
@@ -39,6 +39,10 @@ public class Constants {
 	public static final String TRANSACTION_TYPE_BUY = "BUY";
 	public static final String TRANSACTION_TYPE_SELL = "SELL";
 
+	/** Intrument types. */
+	public static final String CE_INTRUMENT_TYPE = "CE";
+	public static final String PE_INTRUMENT_TYPE = "PE";
+	
 	/** Position types. */
 	public static final String POSITION_DAY = "day";
 	public static final String POSITION_OVERNIGHT = "overnight";
@@ -78,6 +82,7 @@ public class Constants {
 	public static final int BANK_NIFTY_QUANTITY = 25;
 	
 	public static final String TARGET_PRICE = "TARGET_PRICE";
+	public static final String EXECUTE_PRICE = "EXECUTE_PRICE";
 	public static final String SL_ORDER_ID = "SL_ORDER_ID";
 	public static final String MARKET_ORDER_ID = "MARKET_ORDER_ID";
 	
