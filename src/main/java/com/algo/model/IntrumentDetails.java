@@ -28,32 +28,33 @@ public class IntrumentDetails {
 	@Id
 	@GeneratedValue
 	public int id;
+	
 	@Column(name = "TOKEN")
-	public long instrument_token;
+	public long instrumentToken;
 
 	@Column(name = "EXCHANGE_TOKEN")
-	public long exchange_token;
+	public long exchangeToken;
 
 	@Column(name = "SYMBOL")
-	public String tradingsymbol;
+	public String tradingSymbol;
 
 	@Column(name = "UNDER_LYNIG")
 	public String name;
 
 	@Column(name = "INTRUNEMT_TYPE")
-	public String instrument_type;
+	public String instrumentType;
 
 	@Column(name = "EXCHANGE")
 	public String exchange;
 
 	@Column(name = "STRIKE_PRICE")
-	public String strike;
+	public String strikePrice;
 
 	@Column(name = "LOT_SIZE")
-	public int lot_size;
+	public int lotSize;
 
 	@Column(name = "EXPIRY_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date expiry;
+	@Temporal(TemporalType.DATE)
+	public Date expiryDay;
 
 }

@@ -1,5 +1,6 @@
 package com.algo.constants;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Constants {
@@ -13,7 +14,7 @@ public class Constants {
 	public static final String secret_Key = "kkdf5lmbhr109xxew2wfwz1ywqncxjn2";
 
 	// REQUEST_KEY
-	public static final String request_Key = "KClrxWR8M8BsK9InCpb4qePmCjG9UEqx";
+	public static final String request_Key = "BOfeXhwqNspIKZ1i12SE9P1HAw6BPrqv";
 	
 	public static final String KITE_EXISTED_API_NAME = "kiteExistedApi";
 	
@@ -85,6 +86,12 @@ public class Constants {
 	public static final String EXECUTE_PRICE = "EXECUTE_PRICE";
 	public static final String SL_ORDER_ID = "SL_ORDER_ID";
 	public static final String MARKET_ORDER_ID = "MARKET_ORDER_ID";
+	
+	public static final SimpleDateFormat sdfWithOutTime = new SimpleDateFormat("yyyy-MM-dd");
+	
+
+	 
+	
 	
 
 }

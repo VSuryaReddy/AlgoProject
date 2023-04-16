@@ -1,5 +1,8 @@
 package com.algo.constants;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import com.zerodhatech.models.Instrument;
@@ -21,13 +24,14 @@ public class UtilityClass {
 		}
 		return true;
 	}
+
 	public static <T> boolean isListEmpty(List<T> list) {
 		if (list != null && list.size() != 0 && !list.isEmpty()) {
 			return false;
 		}
 		return true;
 	}
-	
+
 	public static double getPriceOfgivenPercentage(double price, int percent) {
 		double percentage = 0.01 * percent;
 		int SLPrice = (int) (price * percentage);
@@ -43,6 +47,10 @@ public class UtilityClass {
 	public static String getStrikePrice(double lastTradedPrice) {
 		String strikePrice = String.valueOf(50 * (Math.round(lastTradedPrice / 50)));
 		return strikePrice;
+	}
+
+	public static Date parseAndChangeDateFormat(Date date) throws ParseException {
+		return Constants.sdfWithOutTime.parse(Constants.sdfWithOutTime.format(date));
 	}
 
 }

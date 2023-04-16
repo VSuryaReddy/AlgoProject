@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.algo.constants.Constants;
 import com.algo.constants.UtilityClass;
+import com.algo.model.IntrumentDetails;
 import com.zerodhatech.kiteconnect.kitehttp.exceptions.KiteException;
-import com.zerodhatech.models.Instrument;
 import com.zerodhatech.models.Order;
 
 @Service
@@ -66,17 +66,17 @@ public class StrategyService {
 	public String setStraddleStrategy(String strikePrice) throws JSONException, IOException, KiteException, Exception {
 		log.info("In StraddleStrategyService.setStraddleStrategy Start");
 
-		List<Instrument> currentStrikePriceList = optionStrikesIntrument
+		List<IntrumentDetails> currentStrikePriceList = optionStrikesIntrument
 				.getWeeklyOptionContractsIntrumentListAtGivenStrikes(Constants.NIFTY_INDEX, Constants.EXPIRY_DAY,
 						strikePrice);
 		double CE_Premium = optionStrikesIntrument
-				.getLTP(String.valueOf(currentStrikePriceList.get(0).getInstrument_token()));
+				.getLTP(String.valueOf(currentStrikePriceList.get(0).getInstrumentToken()));
 		double PE_Premium = optionStrikesIntrument
-				.getLTP(String.valueOf(currentStrikePriceList.get(1).getInstrument_token()));
+				.getLTP(String.valueOf(currentStrikePriceList.get(1).getInstrumentToken()));
 		double premiumDiff = Math.abs(CE_Premium - PE_Premium);
-		log.info("Strike Price--> " + currentStrikePriceList.get(0).strike);
-		log.info("Symbols--> " + currentStrikePriceList.get(0).tradingsymbol + " "
-				+ currentStrikePriceList.get(1).tradingsymbol);
+		log.info("Strike Price--> " + currentStrikePriceList.get(0).strikePrice);
+		log.info("Symbols--> " + currentStrikePriceList.get(0).tradingSymbol + " "
+				+ currentStrikePriceList.get(1).tradingSymbol);
 		log.info("Premium Difference--> " + premiumDiff);
 		if (premiumDiff <= Constants.ELIGIBLE_DIFFERENCE_BTW_PREMIUM) {
 
@@ -85,26 +85,26 @@ public class StrategyService {
 			Map<Long, String> tokenMarketOrderIdSymbolMap = new HashMap<>();
 			Map<Long, Double> tokenTriggeredPriceSymbolMap = new HashMap<>();
 			ArrayList<Long> tokenList = new ArrayList<>();
-			for (Instrument currentStrikePrice : currentStrikePriceList) {
+			for (IntrumentDetails currentStrikePrice : currentStrikePriceList) {
 				Map orderandSLPriceMap = ordersBucket.placeOptionOrder(Constants.NIFTY_QUANTITY,
-						Constants.ORDER_TYPE_MARKET, currentStrikePrice.getTradingsymbol(), Constants.PRODUCT_MIS, 0, 0,
+						Constants.ORDER_TYPE_MARKET, currentStrikePrice.getTradingSymbol(), Constants.PRODUCT_MIS, 0, 0,
 						Constants.EXCHANGE_NFO, Constants.TRANSACTION_TYPE_SELL, Constants.VARIETY_REGULAR);
 				if (orderandSLPriceMap != null) {
-					tokenTradingSymbolMap.put(currentStrikePrice.getInstrument_token(),
-							currentStrikePrice.getTradingsymbol());
-					tokenMarketOrderIdSymbolMap.put(currentStrikePrice.getInstrument_token(),
+					tokenTradingSymbolMap.put(currentStrikePrice.getInstrumentToken(),
+							currentStrikePrice.getTradingSymbol());
+					tokenMarketOrderIdSymbolMap.put(currentStrikePrice.getInstrumentToken(),
 							(String) orderandSLPriceMap.get(Constants.MARKET_ORDER_ID));
-					tokenSLOrderIdSymbolMap.put(currentStrikePrice.getInstrument_token(),
+					tokenSLOrderIdSymbolMap.put(currentStrikePrice.getInstrumentToken(),
 							(String) orderandSLPriceMap.get(Constants.SL_ORDER_ID));
-					tokenTriggeredPriceSymbolMap.put(currentStrikePrice.getInstrument_token(),
+					tokenTriggeredPriceSymbolMap.put(currentStrikePrice.getInstrumentToken(),
 							(Double) orderandSLPriceMap.get(Constants.TARGET_PRICE));
-					tokenList.add(currentStrikePrice.getInstrument_token());
+					tokenList.add(currentStrikePrice.getInstrumentToken());
 				}
 			}
 			if (tokenTradingSymbolMap.size() > 0 && tokenSLOrderIdSymbolMap.size() > 0
 					&& tokenTriggeredPriceSymbolMap.size() > 0 && tokenMarketOrderIdSymbolMap.size() > 0) {
-				tickerService.createKiteTicker(tokenList, tokenTradingSymbolMap, tokenSLOrderIdSymbolMap,
-						tokenTriggeredPriceSymbolMap, tokenMarketOrderIdSymbolMap);
+//				tickerService.createKiteTicker(tokenList, tokenTradingSymbolMap, tokenSLOrderIdSymbolMap,
+//						tokenTriggeredPriceSymbolMap, tokenMarketOrderIdSymbolMap);
 			}
 			log.info("In StraddleStrategyService.setStraddleStrategy End");
 			return "Success";
@@ -129,13 +129,13 @@ public class StrategyService {
 
 		System.out.println("Strike Price->"+strikePrice);
 		
-		List<Instrument> currentStrikePriceList = optionStrikesIntrument
+		List<IntrumentDetails> currentStrikePriceList = optionStrikesIntrument
 				.getWeeklyOptionContractsIntrumentListAtGivenStrikes(Constants.NIFTY_INDEX, Constants.EXPIRY_DAY,
 						strikePrice);
 		double CE_Premium = optionStrikesIntrument
-				.getLTP(String.valueOf(currentStrikePriceList.get(0).getInstrument_token()));
+				.getLTP(String.valueOf(currentStrikePriceList.get(0).getInstrumentToken()));
 		double PE_Premium = optionStrikesIntrument
-				.getLTP(String.valueOf(currentStrikePriceList.get(1).getInstrument_token()));
+				.getLTP(String.valueOf(currentStrikePriceList.get(1).getInstrumentToken()));
 		double totalPremium = CE_Premium + PE_Premium;
 
 		String roundPremium = getStrikePrice(totalPremium);
@@ -153,21 +153,21 @@ public class StrategyService {
 		Map<Long, String> tokenTriggeredInstTypeMap = new HashMap<>();
 		Map<String, String> typeAndTradingSymbolMap = new HashMap<>();
 		ArrayList<Long> tokenList = new ArrayList<>();
-		for (Instrument currentStrikePrice : currentStrikePriceList) {
+		for (IntrumentDetails currentStrikePrice : currentStrikePriceList) {
 			Map orderandSLPriceMap = ordersBucket.placeOptionOrder(Constants.NIFTY_QUANTITY,
-					Constants.ORDER_TYPE_MARKET, currentStrikePrice.getTradingsymbol(), Constants.PRODUCT_MIS, 0, 0,
+					Constants.ORDER_TYPE_MARKET, currentStrikePrice.getTradingSymbol(), Constants.PRODUCT_MIS, 0, 0,
 					Constants.EXCHANGE_NFO, Constants.TRANSACTION_TYPE_SELL, Constants.VARIETY_REGULAR);
 			if (orderandSLPriceMap != null) {
 				
-				tokenTriggeredInstTypeMap.put(currentStrikePrice.getInstrument_token(),currentStrikePrice.getInstrument_type());
+				tokenTriggeredInstTypeMap.put(currentStrikePrice.getInstrumentToken(),currentStrikePrice.getInstrumentType());
 				
-				tokenSLOrderIdSymbolMap.put(currentStrikePrice.getInstrument_token(),
+				tokenSLOrderIdSymbolMap.put(currentStrikePrice.getInstrumentToken(),
 						(String) orderandSLPriceMap.get(Constants.SL_ORDER_ID));
 				
-				tokenTriggeredPriceSymbolMap.put(currentStrikePrice.getInstrument_token(),
+				tokenTriggeredPriceSymbolMap.put(currentStrikePrice.getInstrumentToken(),
 						(Double) orderandSLPriceMap.get(Constants.TARGET_PRICE));
 				
-				tokenList.add(currentStrikePrice.getInstrument_token());
+				tokenList.add(currentStrikePrice.getInstrumentToken());
 			}
 		}
 

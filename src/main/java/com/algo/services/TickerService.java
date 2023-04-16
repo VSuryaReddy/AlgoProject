@@ -276,14 +276,86 @@ public class TickerService {
 					log.info("Exception while Thread Sleep", e);
 					e.printStackTrace();
 				}
-//				kiteTicker.disconnect();
+				kiteTicker.disconnect();
 			}
 		});
 		kiteTicker.setOnDisconnectedListener(new OnDisconnect() {
 
 			@Override
 			public void onDisconnected() {
-				log.warn("*****************Ticker Suspended******************");
+				try {
+					demoCreateKiteTicker2(tokens);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (KiteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				log.warn("Demo1-*****************Ticker Suspended******************");
+			}
+		});
+
+	}
+	public void demoCreateKiteTicker2(ArrayList<Long> tokens)
+			throws JSONException, IOException, KiteException, Exception {
+		log.info("In TickerService.demoCreateKiteTicker2 Start");
+		KiteTicker kiteTicker = new KiteTicker(kiteConnect.getAccessToken(), kiteConnect.getApiKey());
+		kiteTicker.setOnConnectedListener(new OnConnect() {
+			@Override
+			public void onConnected() {
+				kiteTicker.subscribe(tokens);
+				kiteTicker.setMode(tokens, KiteTicker.modeFull);
+			}
+		});
+		kiteTicker.connect();
+		final int count = 0;
+		kiteTicker.setOnTickerArrivalListener(new OnTicks() {
+			@Override
+			public void onTicks(ArrayList<Tick> ticks) {
+
+				if (ticks.size() == tokens.size()) {
+					if (ticks.get(0) != null) {
+						System.out.println("In demo Ticker2");
+						System.out.println("LTP " + ticks.get(0).getLastTradedPrice());
+					}
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					log.info("Exception while Thread Sleep", e);
+					e.printStackTrace();
+				}
+				kiteTicker.disconnect();
+			}
+		});
+		kiteTicker.setOnDisconnectedListener(new OnDisconnect() {
+
+			@Override
+			public void onDisconnected() {
+					try {
+						demoCreateKiteTicker2(tokens);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (KiteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				log.warn("Demo-*****************Ticker Suspended******************");
+				
 			}
 		});
 
